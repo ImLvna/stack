@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+
+import os
+import json
+
+"""
+Traverses all subdirectories and adds them to the vscode workspace
+(ty luna <33)
+"""
+
+forbiddenDirs = [
+    ".git"
+]
+
+constants = [
+    {
+        "name": "Root",
+        "path": ".",
+    }
+]
+
+if os.path.exists('workspace.code-workspace'):
+    with open('workspace.code-workspace', 'r', encoding='utf-8') as f:
+        workspace = json.load(f)
+else:
+    print("workspace.code-workspace not found, creating new one")
+    workspace = {
+        "folders": []
+    }
+
+workspace["folders"] = []
+for dir in os.listdir("."):
+    if os.path.isdir(dir):
+        if dir in forbiddenDirs:
+            continue
+        
+        if dir.endswith('.disabled'):
+            workspace["folders"].append({
+                "name": f"{dir[:-9]} (disabled)",
+                "path": dir,
+            })
+        else:
+            workspace["folders"].append({
+                "name": dir,
+                "path": dir,
+            })
+
+for constant in constants:
+    workspace["folders"].append(constant)
+
+with open('workspace.code-workspace', 'w', encoding='utf-8') as f:
+    json.dump(workspace, f, indent=4)
+
+
+print("Please restart VSCode to apply changes.")
